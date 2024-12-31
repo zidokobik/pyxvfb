@@ -28,12 +28,13 @@ class XSession:
 	"""
 
 
-	def __init__(self, width:int=1080, height:int=768, colordepth:int=24, *, start_timeout=4):
+	def __init__(self, width:int=1080, height:int=768, colordepth:int=24, start_timeout:int=4, *xvfb_args:str):
 		self._width= width
 		self._height = height
 		self._colordepth = colordepth
 		self._display : int
 		self._start_timeout = start_timeout
+		self.xvfb_args = xvfb_args
 
 	@property
 	def width(self):
@@ -61,7 +62,7 @@ class XSession:
 	async def __aenter__(self):
 		self._display = randint(1, _MAX_DISPLAY)
 		self._process = await asyncio.create_subprocess_exec(
-			'Xvfb', f':{self.display}', '-screen', '0', f'{self.width}x{self.height}x{self.colordepth}',
+			'Xvfb', f':{self.display}', '-screen', '0', f'{self.width}x{self.height}x{self.colordepth}', *self.xvfb_args,
 			stdout=DEVNULL, stderr=DEVNULL
 		)
 		logger.info('Starting Xvfb session on display :%s', self.display)
